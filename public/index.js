@@ -8,6 +8,7 @@ const options = {
   STROKE_COLOR: 'black',
   STROKE_WIDTH: 1,
   BOARD_INNER_PADDING: 5,
+  BOARD_QUERY_SELECTOR: 'canvas',
 };
 
 /**
@@ -19,14 +20,14 @@ class DotGame {
    */
   constructor() {
     /** @private {!Element} */
-    this.canvas_ = document.querySelector('canvas');
+    this.board_ = document.querySelector(DotGame.boardQuerySelector);
 
     /** @private {!Context} */
-    this.ctx_ = this.canvas_.getContext('2d');
+    this.ctx_ = this.board_.getContext('2d');
     this.ctx_.strokeStyle = DotGame.strokeColor;
     this.ctx_.lineWidth = DotGame.strokeWidth;
 
-    const boundingRect = this.canvas_.getBoundingClientRect();
+    const boundingRect = this.board_.getBoundingClientRect();
 
     /** @private {number} */
     this.boardWidth_ = boundingRect.width;
@@ -40,8 +41,8 @@ class DotGame {
       y: boundingRect.top,
     };
 
-    this.canvas_.width = this.boardWidth_;
-    this.canvas_.height= this.boardHeight_;
+    this.board_.width = this.boardWidth_;
+    this.board_.height= this.boardHeight_;
 
     /** @private {!Element} */
     this.speedInput_ = document.querySelector('#speed');
@@ -65,6 +66,14 @@ class DotGame {
     this.dots_ = [];
 
     this.addListeners_();
+  }
+
+  /**
+   * Returns the query selector for the board.
+   * @return {number}
+   */
+  static get boardQuerySelector() {
+    return options.BOARD_QUERY_SELECTOR;
   }
 
   /**
@@ -137,8 +146,8 @@ class DotGame {
    */
   addListeners_() {
     this.speedInput_.addEventListener('input', (e) => this.setSpeed_(e));
-    this.canvas_.addEventListener('mousedown', (e) => this.hitAttempt_(e));
-    this.canvas_.addEventListener('touchstart', (e) => this.hitAttempt_(e));
+    this.board_.addEventListener('mousedown', (e) => this.hitAttempt_(e));
+    this.board_.addEventListener('touchstart', (e) => this.hitAttempt_(e));
   }
 
   /**
@@ -258,6 +267,8 @@ class DotGame {
       this.ctx_.closePath();
     });
     this.ctx_.stroke();
+
+    this.expireDots_();
   }
 
   /**
@@ -279,6 +290,32 @@ class DotGame {
   }
 
   /**
+   * Remove dots that have gone off the board
+   */
+  expireDots_() {
+    let isExpired = false;
+    let i = 0;
+
+    if (!this.dots_.length) {
+      return;
+    }
+
+    do {
+      if (i < this.dots_.length &&
+          this.dots_[i].y - this.dots_[i].r - DotGame.strokeWidth >
+          this.boardHeight_) {
+        i++;
+        isExpired = true;
+      } else {
+        isExpired = false;
+      }
+    } while (isExpired);
+    if (i) {
+      this.dots_.splice(0, i);
+    }
+  }
+
+  /**
    * Returns the number of milliseconds for the requested framerate.
    * @param {number} fps Frames per second.
    * @return {number} Number of milliseconds to display a frame.
@@ -295,6 +332,7 @@ class DotGame {
     this.fpsInterval_ = setInterval(this.updateBoard.bind(this), fps);
     this.newDotInterval_ = setInterval(this.addDot_.bind(this),
         DotGame.newDotRate);
+    this.addDot_();
   }
 }
 
