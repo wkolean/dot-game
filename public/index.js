@@ -3,10 +3,11 @@ const options_ = {
   FRAMES_PER_SECOND: 60,
   MIN_DOT_DIAMETER: 10,
   MAX_DOT_DIAMETER: 100,
-  DOT_GENERATION_RATE: 1000,
+  NEW_DOT_GENERATION_DELAY: 1000,
   DOT_RESPAWN_DELAY: 1000,
-  STROKE_COLOR: 'black',
+  STROKE_COLOR: 'rgba(0, 0, 0, 1)',
   STROKE_WIDTH: 1,
+  DOT_FILL_COLOR: 'rgba(255, 255, 255, 1)',
   BOARD_INNER_PADDING: 5,
   BOARD_QUERY_SELECTOR: 'canvas',
   SPEED_QUERY_SELECTOR: '#speed',
@@ -101,8 +102,8 @@ class DotGame {
    * Returns the number of milliseconds to wait before creating a new dot.
    * @return {number}
    */
-  get DOT_GENERATION_RATE() {
-    return options_.DOT_GENERATION_RATE;
+  get NEW_DOT_GENERATION_DELAY() {
+    return options_.NEW_DOT_GENERATION_DELAY;
   }
 
   /**
@@ -127,6 +128,14 @@ class DotGame {
    */
   get STROKE_WIDTH() {
     return options_.STROKE_WIDTH;
+  }
+
+  /**
+   * Returns the dot fill color.
+   * @return {string}
+   */
+  get DOT_FILL_COLOR() {
+    return options_.DOT_FILL_COLOR;
   }
 
   /**
@@ -242,9 +251,7 @@ class DotGame {
     const x = e.pageX - this.boardOffsets_.x;
     const y = e.pageY - this.boardOffsets_.y;
 
-    if (this.ctx_.isPointInPath(x, y)) {
-      this.scoreDots_(x, y);
-    }
+    this.scoreDots_(x, y);
   }
 
   /**
@@ -303,14 +310,13 @@ class DotGame {
 
     const dy = this.speed_ / this.FRAMES_PER_SECOND;
 
-    this.ctx_.beginPath();
     this.dots_.forEach((dot) => {
       dot.y += dy;
-      this.ctx_.moveTo(dot.x + dot.r, dot.y);
+      this.ctx_.beginPath();
       this.drawDot_(dot);
       this.ctx_.closePath();
+      this.ctx_.stroke();
     });
-    this.ctx_.stroke();
 
     this.expireDots_();
   }
@@ -325,6 +331,8 @@ class DotGame {
     this.ctx_.lineWidth = this.STROKE_WIDTH;
     this.ctx_.arc(dot.x, dot.y, dot.r, this.DOT_START_ANGLE,
         this.DOT_END_ANGLE, false);
+    this.ctx_.fillStyle = this.DOT_FILL_COLOR;
+    this.ctx_.fill();
   }
 
   /**
@@ -390,7 +398,7 @@ class DotGame {
     this.addDot_();
     this.fpsInterval_ = setInterval(this.render_.bind(this), frameRate);
     this.newDotInterval_ = setInterval(this.addDot_.bind(this),
-        this.DOT_GENERATION_RATE);
+        this.NEW_DOT_GENERATION_DELAY);
   }
 }
 
