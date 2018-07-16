@@ -235,16 +235,12 @@ class DotGame {
   }
 
   /**
-   * Returns a random X position.
-   * @param {number} radius Radius of the dot.
-   * @return {number} X position.
+   * Returns a random percent for X position.
+   * @return {number} percentage.
    * @private
    */
-  getRandomX_(radius) {
-    const padding = this.BOARD_INNER_PADDING;
-    const min = radius + this.STROKE_WIDTH + padding;
-    const max = this.boardWidth_ - radius - this.STROKE_WIDTH - padding;
-    return this.getRandomNumber_(min, max);
+  getRandomPercent_() {
+    return this.getRandomNumber_(0, 100);
   }
 
   /**
@@ -256,6 +252,19 @@ class DotGame {
    */
   getRandomNumber_(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  /**
+   * Converts X from percent to pixel value.
+   * @param {Object} dot
+   * @return {number}
+   */
+  percentToPixel_(dot) {
+    const padding = this.BOARD_INNER_PADDING;
+    const min = dot.r + this.STROKE_WIDTH + padding;
+    const max = this.boardWidth_ - dot.r - this.STROKE_WIDTH - padding;
+    const x = (max - min) * dot.x / 100 + min;
+    return x;
   }
 
   /**
@@ -400,10 +409,12 @@ class DotGame {
    * @private
    */
   drawDot_(dot) {
+    const x = this.percentToPixel_(dot);
+
     this.ctx_.beginPath();
     this.ctx_.strokeStyle = this.STROKE_COLOR;
     this.ctx_.lineWidth = this.STROKE_WIDTH;
-    this.ctx_.arc(dot.x, dot.y, dot.r, this.DOT_START_ANGLE,
+    this.ctx_.arc(x, dot.y, dot.r, this.DOT_START_ANGLE,
         this.DOT_END_ANGLE, false);
     this.ctx_.fillStyle = this.DOT_FILL_COLOR;
     this.ctx_.closePath();
@@ -415,7 +426,7 @@ class DotGame {
    */
   addDot_() {
     const radius = this.getRandomRadius_();
-    const x = this.getRandomX_(radius);
+    const x = this.getRandomPercent_();
     // position dot offscreen
     const y = -radius - this.STROKE_WIDTH;
 
