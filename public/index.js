@@ -188,7 +188,7 @@ class DotGame {
   }
 
   /**
-   * Returns true if the click should propagate to all dots under the same spot.
+   * Returns true if the hit should propagate to all dots under the same spot.
    * @return {boolean}
    */
   get PROPAGATE_HITS() {
@@ -268,17 +268,16 @@ class DotGame {
   }
 
   /**
-   * Removes the top dot hit by the user and updates the score.
+   * Scores and removes the top layer dot hit by the user.
    * @param {number} x
    * @param {number} y
+   * @private
    */
   scoreTopDot_(x, y) {
     let i = this.dots_.length;
     while (i--) {
       let dot = this.dots_[i];
-      this.ctx_.beginPath();
       this.drawDot_(dot);
-      this.ctx_.closePath();
       if (this.ctx_.isPointInPath(x, y)) {
         this.increaseScore_(dot.r);
         break;
@@ -291,15 +290,14 @@ class DotGame {
   }
 
   /**
-   * Removes the dots hit by the user and updates the score.
+   * Scores and removes all dots on all layers under one hit.
    * @param {number} x
    * @param {number} y
+   * @private
    */
   scoreAllDots_(x, y) {
     this.dots_ = this.dots_.filter((dot) => {
-      this.ctx_.beginPath();
       this.drawDot_(dot);
-      this.ctx_.closePath();
       if (this.ctx_.isPointInPath(x, y)) {
         this.increaseScore_(dot.r);
         return false;
@@ -356,9 +354,7 @@ class DotGame {
 
     this.dots_.forEach((dot) => {
       dot.y += dy;
-      this.ctx_.beginPath();
       this.drawDot_(dot);
-      this.ctx_.closePath();
       this.ctx_.stroke();
     });
 
@@ -371,12 +367,14 @@ class DotGame {
    * @private
    */
   drawDot_(dot) {
+    this.ctx_.beginPath();
     this.ctx_.strokeStyle = this.STROKE_COLOR;
     this.ctx_.lineWidth = this.STROKE_WIDTH;
     this.ctx_.arc(dot.x, dot.y, dot.r, this.DOT_START_ANGLE,
         this.DOT_END_ANGLE, false);
     this.ctx_.fillStyle = this.DOT_FILL_COLOR;
     this.ctx_.fill();
+    this.ctx_.closePath();
   }
 
   /**
