@@ -33,22 +33,20 @@ class DotGame {
     /** @private {!Context} */
     this.ctx_ = this.board_.getContext('2d');
 
-    const boundingRect = this.board_.getBoundingClientRect();
+    /** @private {number} */
+    this.boardWidth_ = 0;
 
     /** @private {number} */
-    this.boardWidth_ = boundingRect.width;
-
-    /** @private {number} */
-    this.boardHeight_ = boundingRect.height;
+    this.boardHeight_ = 0;
 
     /** @private {Object} */
     this.boardOffsets_ = {
-      x: boundingRect.left,
-      y: boundingRect.top,
+      x: 0,
+      y: 0,
     };
 
-    this.board_.width = this.boardWidth_;
-    this.board_.height= this.boardHeight_;
+    /** @private {boolean} */
+    this.resize_ = false;
 
     /** @private {!Element} */
     this.speedInput_ = document.querySelector(this.SPEED_QUERY_SELECTOR);
@@ -71,6 +69,7 @@ class DotGame {
     /** @private {Array<Object>} */
     this.dots_ = [];
 
+    this.calculateBoardSize_();
     this.setSpeed_();
     this.addListeners_();
   }
@@ -203,6 +202,15 @@ class DotGame {
     this.speedInput_.addEventListener('input', (e) => this.setSpeed_(e));
     this.board_.addEventListener('mousedown', (e) => this.hitAttempt_(e));
     this.board_.addEventListener('touchstart', (e) => this.hitAttempt_(e));
+    window.addEventListener('resize', (e) => this.resizeBoard_(e));
+  }
+
+  /**
+   * Sets the resize flag to true when the board is resized.
+   * @private
+   */
+  resizeBoard_() {
+    this.resize_ = true;
   }
 
   /**
@@ -343,12 +351,36 @@ class DotGame {
   }
 
   /**
+   * Calculates the dimensions of the game board.
+   * @private
+   */
+  calculateBoardSize_() {
+    const boundingRect = this.board_.getBoundingClientRect();
+
+    this.boardWidth_ = boundingRect.width;
+    this.boardHeight_ = boundingRect.height;
+
+    this.boardOffsets_ = {
+      x: boundingRect.left,
+      y: boundingRect.top,
+    };
+
+    this.board_.width = this.boardWidth_;
+    this.board_.height= this.boardHeight_;
+  }
+
+  /**
    * Renders the dots.
    * @private
    */
   render_() {
     // reset board
     this.ctx_.clearRect(0, 0, this.boardWidth_, this.boardHeight_);
+
+    if (this.resize_) {
+      this.calculateBoardSize_();
+      this.resize_ = false;
+    }
 
     const dy = this.speed_ / this.FRAMES_PER_SECOND;
 
