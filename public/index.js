@@ -1,4 +1,4 @@
-/** @private @enum {number|string} */
+/** @private @enum {number|string|boolean} */
 const options_ = {
   FRAMES_PER_SECOND: 60,
   MIN_DOT_DIAMETER: 10,
@@ -14,6 +14,7 @@ const options_ = {
   SCORE_QUERY_SELECTOR: '#score',
   DOT_START_ANGLE: 0,
   DOT_END_ANGLE: Math.PI / 180 * 360,
+  PROPAGATE_HITS: false,
 };
 
 /**
@@ -187,6 +188,14 @@ class DotGame {
   }
 
   /**
+   * Returns true if the click should propagate to all dots under the same spot.
+   * @return {boolean}
+   */
+  get PROPAGATE_HITS() {
+    return options_.PROPAGATE_HITS;
+  }
+
+  /**
    * Adds event listeners.
    * @private
    */
@@ -251,7 +260,34 @@ class DotGame {
     const x = e.pageX - this.boardOffsets_.x;
     const y = e.pageY - this.boardOffsets_.y;
 
-    this.scoreDots_(x, y);
+    if (this.PROPAGATE_HITS) {
+      this.scoreAllDots_(x, y);
+    } else {
+      this.scoreTopDot_(x, y);
+    }
+  }
+
+  /**
+   * Removes the top dot hit by the user and updates the score.
+   * @param {number} x
+   * @param {number} y
+   */
+  scoreTopDot_(x, y) {
+    let i = this.dots_.length;
+    while (i--) {
+      let dot = this.dots_[i];
+      this.ctx_.beginPath();
+      this.drawDot_(dot);
+      this.ctx_.closePath();
+      if (this.ctx_.isPointInPath(x, y)) {
+        this.increaseScore_(dot.r);
+        break;
+      }
+    }
+
+    if (i > -1) {
+      this.dots_.splice(i, 1);
+    }
   }
 
   /**
@@ -259,19 +295,28 @@ class DotGame {
    * @param {number} x
    * @param {number} y
    */
-  scoreDots_(x, y) {
+  scoreAllDots_(x, y) {
     this.dots_ = this.dots_.filter((dot) => {
       this.ctx_.beginPath();
       this.drawDot_(dot);
       this.ctx_.closePath();
       if (this.ctx_.isPointInPath(x, y)) {
-        let score = this.calculateDotScore(dot.r);
-        this.addToScore_(score);
-        setTimeout(this.addDot_.bind(this), this.DOT_RESPAWN_DELAY);
+        this.increaseScore_(dot.r);
         return false;
       }
       return true;
     });
+  }
+
+  /**
+   * Increases the user's score after hitting a dot.
+   * @param {number} radius Radius of the dot.
+   * @private
+   */
+  increaseScore_(radius) {
+    this.score_ += this.calculateDotScore(radius);
+    this.displayScore_();
+    setTimeout(this.addDot_.bind(this), this.DOT_RESPAWN_DELAY);
   }
 
   /**
@@ -291,12 +336,11 @@ class DotGame {
   }
 
   /**
-   * Increments the user's score.
+   * Display's the current score.
    * @param {number} score
    * @private
    */
-  addToScore_(score) {
-    this.score_ += score;
+  displayScore_(score) {
     this.scoreElement_.textContent = this.score_;
   }
 
