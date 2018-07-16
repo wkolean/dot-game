@@ -58,14 +58,18 @@ class DotGame {
     this.scoreElement_ = document.querySelector(this.SCORE_QUERY_SELECTOR);
 
     /** @private {number} */
-    this.speed_ = this.speedInput_.value;
+    this.speed_ = 0;
 
     /** @private {number} */
     this.fpsInterval_ = null;
 
+    /** @private {number} */
+    this.newDotInterval_ = null;
+
     /** @private {Array<Object>} */
     this.dots_ = [];
 
+    this.setSpeed_();
     this.addListeners_();
   }
 
@@ -185,11 +189,11 @@ class DotGame {
 
   /**
    * Changes speed.
-   * @param {!MouseEvent} e
+   * @param {?MouseEvent} e
    * @private
    */
   setSpeed_(e) {
-    this.speed_ = parseInt(e.target.value, 10);
+    this.speed_ = parseInt(this.speedInput_.value, 10);
   }
 
   /**
