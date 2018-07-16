@@ -156,7 +156,7 @@ class DotGame {
   }
 
   /**
-   * Returns the query selector for the speed component.
+   * Returns the query selector for the speed element.
    * @return {string}
    */
   get SPEED_QUERY_SELECTOR() {
@@ -355,6 +355,7 @@ class DotGame {
     this.dots_.forEach((dot) => {
       dot.y += dy;
       this.drawDot_(dot);
+      this.ctx_.fill();
       this.ctx_.stroke();
     });
 
@@ -362,7 +363,7 @@ class DotGame {
   }
 
   /**
-   * Draws dot.
+   * Draws a dot.
    * @param {object} dot Dot settings.
    * @private
    */
@@ -373,7 +374,6 @@ class DotGame {
     this.ctx_.arc(dot.x, dot.y, dot.r, this.DOT_START_ANGLE,
         this.DOT_END_ANGLE, false);
     this.ctx_.fillStyle = this.DOT_FILL_COLOR;
-    this.ctx_.fill();
     this.ctx_.closePath();
   }
 
