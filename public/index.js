@@ -9,6 +9,9 @@ const options_ = {
   STROKE_WIDTH: 1,
   BOARD_INNER_PADDING: 5,
   BOARD_QUERY_SELECTOR: 'canvas',
+  SPEED_QUERY_SELECTOR: '#speed',
+  SCORE_QUERY_SELECTOR: '#score',
+  RADIANS_360: Math.PI / 180 * 360,
 };
 
 /**
@@ -45,22 +48,19 @@ class DotGame {
     this.board_.height= this.boardHeight_;
 
     /** @private {!Element} */
-    this.speedInput_ = document.querySelector('#speed');
+    this.speedInput_ = document.querySelector(this.SPEED_QUERY_SELECTOR);
 
     /** @private {number} */
     this.score_ = 0;
 
     /** @private {!Element} */
-    this.scoreElement_ = document.querySelector('#score');
+    this.scoreElement_ = document.querySelector(this.SCORE_QUERY_SELECTOR);
 
     /** @private {number} */
     this.speed_ = this.speedInput_.value;
 
     /** @private {number} */
     this.fpsInterval_ = null;
-
-    /** @private {number} */
-    this.radians_ = (Math.PI / 180 * 360);
 
     /** @private {Array<Object>} */
     this.dots_ = [];
@@ -69,11 +69,11 @@ class DotGame {
   }
 
   /**
-   * Returns the query selector for the board.
+   * Returns the number of frames per second.
    * @return {number}
    */
-  get BOARD_QUERY_SELECTOR() {
-    return options_.BOARD_QUERY_SELECTOR;
+  get FRAMES_PER_SECOND() {
+    return options_.FRAMES_PER_SECOND;
   }
 
   /**
@@ -109,7 +109,7 @@ class DotGame {
   }
 
   /**
-   * Returns the color of the stroke.
+   * Returns the color of the dot stroke.
    * @return {string}
    */
   get STROKE_COLOR() {
@@ -117,7 +117,7 @@ class DotGame {
   }
 
   /**
-   * Returns the width of the stroke.
+   * Returns the width of the dot stroke.
    * @return {number}
    */
   get STROKE_WIDTH() {
@@ -125,7 +125,7 @@ class DotGame {
   }
 
   /**
-   * Returns the amount of padding for the board.
+   * Returns the amount of left and right padding for the board.
    * @return {number}
    */
   get BOARD_INNER_PADDING() {
@@ -133,11 +133,35 @@ class DotGame {
   }
 
   /**
-   * Returns the number of frames per second.
+   * Returns the query selector for the board.
+   * @return {string}
+   */
+  get BOARD_QUERY_SELECTOR() {
+    return options_.BOARD_QUERY_SELECTOR;
+  }
+
+  /**
+   * Returns the query selector for the speed component.
+   * @return {string}
+   */
+  get SPEED_QUERY_SELECTOR() {
+    return options_.SPEED_QUERY_SELECTOR;
+  }
+
+  /**
+   * Returns the query selector for the score element.
+   * @return {string}
+   */
+  get SCORE_QUERY_SELECTOR() {
+    return options_.SCORE_QUERY_SELECTOR;
+  }
+
+  /**
+   * Returns 360º in radians.
    * @return {number}
    */
-  get FRAMES_PER_SECOND() {
-    return options_.FRAMES_PER_SECOND;
+  get RADIANS_360() {
+    return options_.RADIANS_360;
   }
 
   /**
@@ -218,7 +242,7 @@ class DotGame {
   scoreDots_(x, y) {
     this.dots_ = this.dots_.filter((dot) => {
       this.ctx_.beginPath();
-      this.ctx_.arc(dot.x, dot.y, dot.r, 0, this.radians_, false);
+      this.ctx_.arc(dot.x, dot.y, dot.r, 0, this.RADIANS_360, false);
       this.ctx_.closePath();
       if (this.ctx_.isPointInPath(x, y)) {
         let diameter = dot.r * 2;
@@ -255,7 +279,7 @@ class DotGame {
     this.dots_.forEach((dot) => {
       dot.y += dy;
       this.ctx_.moveTo(dot.x + dot.r, dot.y);
-      this.ctx_.arc(dot.x, dot.y, dot.r, 0, this.radians_, false);
+      this.ctx_.arc(dot.x, dot.y, dot.r, 0, this.RADIANS_360, false);
       this.ctx_.closePath();
     });
     this.ctx_.stroke();
@@ -270,6 +294,7 @@ class DotGame {
   addDot_() {
     const radius = this.getRandomRadius_();
     const x = this.getRandomX_(radius);
+    // position dot offscreen
     const y = -radius;
 
     let dot = {
@@ -282,10 +307,11 @@ class DotGame {
   }
 
   /**
-   * Remove dots that have gone off the board
+   * Removes dots that have gone off the board.
+   * @private
    */
   expireDots_() {
-    let isExpired = false;
+    let isExpired = true;
     let i = 0;
 
     if (!this.dots_.length) {
@@ -297,11 +323,11 @@ class DotGame {
           this.dots_[i].y - this.dots_[i].r - this.STROKE_WIDTH >
           this.boardHeight_) {
         i++;
-        isExpired = true;
       } else {
         isExpired = false;
       }
     } while (isExpired);
+
     if (i) {
       this.dots_.splice(0, i);
     }
@@ -310,7 +336,7 @@ class DotGame {
   /**
    * Returns the number of milliseconds for the requested framerate.
    * @param {number} fps Frames per second.
-   * @return {number} Number of milliseconds to display a frame.
+   * @return {number} Number of milliseconds to display each frame.
    */
   getFramerate(fps) {
     return 1000 / fps;
