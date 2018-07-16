@@ -321,10 +321,10 @@ class DotGame {
    */
   begin() {
     const frameRate = this.getFramerate(this.FRAMES_PER_SECOND);
+    this.addDot_();
     this.fpsInterval_ = setInterval(this.render_.bind(this), frameRate);
     this.newDotInterval_ = setInterval(this.addDot_.bind(this),
         this.DOT_GENERATION_RATE);
-    this.addDot_();
   }
 }
 
