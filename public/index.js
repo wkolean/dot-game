@@ -1,6 +1,6 @@
 /** @private @enum {number|string} */
 const options_ = {
-  FRAMES_PER_SECOND: 30,
+  FRAMES_PER_SECOND: 60,
   MIN_DOT_DIAMETER: 10,
   MAX_DOT_DIAMETER: 100,
   DOT_GENERATION_RATE: 1000,
@@ -20,12 +20,12 @@ class DotGame {
    */
   constructor() {
     /** @private {!Element} */
-    this.board_ = document.querySelector(this.boardQuerySelector);
+    this.board_ = document.querySelector(this.BOARD_QUERY_SELECTOR);
 
     /** @private {!Context} */
     this.ctx_ = this.board_.getContext('2d');
-    this.ctx_.strokeStyle = this.strokeColor;
-    this.ctx_.lineWidth = this.strokeWidth;
+    this.ctx_.strokeStyle = this.STROKE_COLOR;
+    this.ctx_.lineWidth = this.STROKE_WIDTH;
 
     const boundingRect = this.board_.getBoundingClientRect();
 
@@ -72,7 +72,7 @@ class DotGame {
    * Returns the query selector for the board.
    * @return {number}
    */
-  get boardQuerySelector() {
+  get BOARD_QUERY_SELECTOR() {
     return options_.BOARD_QUERY_SELECTOR;
   }
 
@@ -80,7 +80,7 @@ class DotGame {
    * Returns the minimum diameter for a dot.
    * @return {number}
    */
-  get minDiameter() {
+  get MIN_DOT_DIAMETER() {
     return options_.MIN_DOT_DIAMETER;
   }
 
@@ -88,7 +88,7 @@ class DotGame {
    * Returns the maximum diameter for a dot.
    * @return {number}
    */
-  get maxDiameter() {
+  get MAX_DOT_DIAMETER() {
     return options_.MAX_DOT_DIAMETER;
   }
 
@@ -96,7 +96,7 @@ class DotGame {
    * Returns the number of milliseconds to wait before creating a new dot.
    * @return {number}
    */
-  get newDotRate() {
+  get DOT_GENERATION_RATE() {
     return options_.DOT_GENERATION_RATE;
   }
 
@@ -104,7 +104,7 @@ class DotGame {
    * Returns the number of milliseconds before a replacement dot should appear.
    * @return {number}
    */
-  get dotRespawnRate() {
+  get DOT_RESPAWN_DELAY() {
     return options_.DOT_RESPAWN_DELAY;
   }
 
@@ -112,7 +112,7 @@ class DotGame {
    * Returns the color of the stroke.
    * @return {string}
    */
-  get strokeColor() {
+  get STROKE_COLOR() {
     return options_.STROKE_COLOR;
   }
 
@@ -120,7 +120,7 @@ class DotGame {
    * Returns the width of the stroke.
    * @return {number}
    */
-  get strokeWidth() {
+  get STROKE_WIDTH() {
     return options_.STROKE_WIDTH;
   }
 
@@ -128,7 +128,7 @@ class DotGame {
    * Returns the amount of padding for the board.
    * @return {number}
    */
-  get boardPadding() {
+  get BOARD_INNER_PADDING() {
     return options_.BOARD_INNER_PADDING;
   }
 
@@ -136,7 +136,7 @@ class DotGame {
    * Returns the number of frames per second.
    * @return {number}
    */
-  get fps() {
+  get FRAMES_PER_SECOND() {
     return options_.FRAMES_PER_SECOND;
   }
 
@@ -165,8 +165,8 @@ class DotGame {
    * @private
    */
   getRandomRadius_() {
-    const diameter = this.getRandomNumber_(this.minDiameter,
-        this.maxDiameter);
+    const diameter = this.getRandomNumber_(this.MIN_DOT_DIAMETER,
+        this.MAX_DOT_DIAMETER);
     const radius = diameter / 2;
     return radius;
   }
@@ -178,9 +178,9 @@ class DotGame {
    * @private
    */
   getRandomX_(radius) {
-    const padding = this.boardPadding;
-    const min = radius + this.strokeWidth + padding;
-    const max = this.boardWidth_ - radius - this.strokeWidth - padding;
+    const padding = this.BOARD_INNER_PADDING;
+    const min = radius + this.STROKE_WIDTH + padding;
+    const max = this.boardWidth_ - radius - this.STROKE_WIDTH - padding;
     return this.getRandomNumber_(min, max);
   }
 
@@ -222,9 +222,9 @@ class DotGame {
       this.ctx_.closePath();
       if (this.ctx_.isPointInPath(x, y)) {
         let diameter = dot.r * 2;
-        let score = Math.round(this.maxDiameter / diameter);
+        let score = Math.round(this.MAX_DOT_DIAMETER / diameter);
         this.addToScore_(score);
-        setTimeout(this.addDot_.bind(this), this.dotRespawnRate);
+        setTimeout(this.addDot_.bind(this), this.DOT_RESPAWN_DELAY);
         return false;
       }
       return true;
@@ -242,14 +242,6 @@ class DotGame {
   }
 
   /**
-   * Updates the board.
-   * @private
-   */
-  updateBoard() {
-    window.requestAnimationFrame(this.render_.bind(this));
-  }
-
-  /**
    * Renders the dots.
    * @private
    */
@@ -257,7 +249,7 @@ class DotGame {
     // reset board
     this.ctx_.clearRect(0, 0, this.boardWidth_, this.boardHeight_);
 
-    const dy = this.speed_ / this.fps;
+    const dy = this.speed_ / this.FRAMES_PER_SECOND;
 
     this.ctx_.beginPath();
     this.dots_.forEach((dot) => {
@@ -302,7 +294,7 @@ class DotGame {
 
     do {
       if (i < this.dots_.length &&
-          this.dots_[i].y - this.dots_[i].r - this.strokeWidth >
+          this.dots_[i].y - this.dots_[i].r - this.STROKE_WIDTH >
           this.boardHeight_) {
         i++;
         isExpired = true;
@@ -328,10 +320,10 @@ class DotGame {
    * Begins the game.
    */
   begin() {
-    const fps = this.getFramerate(this.FRAMES_PER_SECOND);
-    this.fpsInterval_ = setInterval(this.updateBoard.bind(this), fps);
+    const frameRate = this.getFramerate(this.FRAMES_PER_SECOND);
+    this.fpsInterval_ = setInterval(this.render_.bind(this), frameRate);
     this.newDotInterval_ = setInterval(this.addDot_.bind(this),
-        this.newDotRate);
+        this.DOT_GENERATION_RATE);
     this.addDot_();
   }
 }
