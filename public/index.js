@@ -11,11 +11,14 @@ const options_ = {
   BOARD_QUERY_SELECTOR: 'canvas',
   SPEED_QUERY_SELECTOR: '#speed',
   SCORE_QUERY_SELECTOR: '#score',
-  RADIANS_360: Math.PI / 180 * 360,
+  DOT_START_ANGLE: 0,
+  DOT_END_ANGLE: Math.PI / 180 * 360,
 };
 
 /**
- * @fileOverview Dot Game
+ * @fileOverview Dot Game.
+ * Dots move from the top to the bottom of the screen. A player tries to click
+ * on the dots, and receives points when they are successful.
  */
 class DotGame {
   /**
@@ -27,8 +30,6 @@ class DotGame {
 
     /** @private {!Context} */
     this.ctx_ = this.board_.getContext('2d');
-    this.ctx_.strokeStyle = this.STROKE_COLOR;
-    this.ctx_.lineWidth = this.STROKE_WIDTH;
 
     const boundingRect = this.board_.getBoundingClientRect();
 
@@ -157,11 +158,19 @@ class DotGame {
   }
 
   /**
-   * Returns 360º in radians.
+   * Returns the starting angle in radians for drawing a dot.
    * @return {number}
    */
-  get RADIANS_360() {
-    return options_.RADIANS_360;
+  get DOT_START_ANGLE() {
+    return options_.DOT_START_ANGLE;
+  }
+
+  /**
+   * Returns the ending angle in radians for drawing a dot.
+   * @return {number}
+   */
+  get DOT_END_ANGLE() {
+    return options_.DOT_END_ANGLE;
   }
 
   /**
@@ -184,7 +193,7 @@ class DotGame {
   }
 
   /**
-   * Returns a random number between min and max diameter options_.
+   * Returns a random number between min and max diameter options.
    * @return {number}
    * @private
    */
@@ -221,7 +230,7 @@ class DotGame {
 
   /**
    * Checks if user pressed on a dot.
-   * @param {?MouseEvent} e
+   * @param {!MouseEvent} e
    * @private
    */
   hitAttempt_(e) {
@@ -235,24 +244,39 @@ class DotGame {
   }
 
   /**
-   * Removes the dots that contain the x and y coordinates
+   * Removes the dots hit by the user and updates the score.
    * @param {number} x
    * @param {number} y
    */
   scoreDots_(x, y) {
     this.dots_ = this.dots_.filter((dot) => {
       this.ctx_.beginPath();
-      this.ctx_.arc(dot.x, dot.y, dot.r, 0, this.RADIANS_360, false);
+      this.drawDot_(dot);
       this.ctx_.closePath();
       if (this.ctx_.isPointInPath(x, y)) {
-        let diameter = dot.r * 2;
-        let score = Math.round(this.MAX_DOT_DIAMETER / diameter);
+        let score = this.calculateDotScore(dot.r);
         this.addToScore_(score);
         setTimeout(this.addDot_.bind(this), this.DOT_RESPAWN_DELAY);
         return false;
       }
       return true;
     });
+  }
+
+  /**
+   * Calculates the user's score based on the size of the dot.
+   * The score value is inversely proportional to the size of the dot,
+   * with MIN_DOT_DIAMETER dots worth 10 points, and MAX_DOT_DIAMETER
+   * dots worth 1 point.
+   *
+   * @param {number} radius Radius of the dot.
+   * @return {number} Score value.
+   * @private
+   */
+  calculateDotScore(radius) {
+    const diameter = radius * 2;
+    const score = Math.round(this.MAX_DOT_DIAMETER / diameter);
+    return score;
   }
 
   /**
@@ -279,12 +303,24 @@ class DotGame {
     this.dots_.forEach((dot) => {
       dot.y += dy;
       this.ctx_.moveTo(dot.x + dot.r, dot.y);
-      this.ctx_.arc(dot.x, dot.y, dot.r, 0, this.RADIANS_360, false);
+      this.drawDot_(dot);
       this.ctx_.closePath();
     });
     this.ctx_.stroke();
 
     this.expireDots_();
+  }
+
+  /**
+   * Draws dot.
+   * @param {object} dot Dot settings.
+   * @private
+   */
+  drawDot_(dot) {
+    this.ctx_.strokeStyle = this.STROKE_COLOR;
+    this.ctx_.lineWidth = this.STROKE_WIDTH;
+    this.ctx_.arc(dot.x, dot.y, dot.r, this.DOT_START_ANGLE,
+        this.DOT_END_ANGLE, false);
   }
 
   /**
@@ -295,7 +331,7 @@ class DotGame {
     const radius = this.getRandomRadius_();
     const x = this.getRandomX_(radius);
     // position dot offscreen
-    const y = -radius;
+    const y = -radius - this.STROKE_WIDTH;
 
     let dot = {
       r: radius,
