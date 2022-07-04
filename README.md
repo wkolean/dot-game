@@ -5,7 +5,7 @@ on the dots, and receives points when they are successful. The smaller the dot, 
 
 The game was supposed to take a few hours to build, and I suspect they expected the solution to use the dom. Since I was spending my free time on this excercise, I thought it would be fun to use this as an excuse to learn more about canvas, so for my solution, the game is rendered in a canvas element.
 
-I'm pretty happy with the results, but didn't receive any feedback on my solution, which they said means it passed.
+I'm pretty happy with the results, but didn't receive any feedback on my solution, which they said means it passed. [Play the game](https://wkolean.github.io/dot-game/).
 
 ## Requirements
 * [Node](https://nodejs.org) >= 8
