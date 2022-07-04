@@ -1,0 +1,81 @@
+:root {
+  --game-padding: 30px;
+  --panel-height: 180px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  margin: 0;
+}
+
+.panel {
+  font-size: 2rem;
+  height: var(--panel-height);
+  margin: 0 auto;
+  padding-top: 25px;
+  width: calc(100vw - 2 * var(--game-padding));
+}
+
+.panel__score {
+  margin: 0;
+}
+
+.panel__score var {
+  font-style: normal;
+}
+
+.panel__input {
+  -webkit-appearance: none;
+  background-color: rgba(0, 0, 0, .2);
+  border-radius: 25px;
+  height: 15px;
+  margin: 20px 0;
+  padding: 0;
+  width: 100%;
+}
+
+@media screen and (min-width: 600px) {
+  .panel__input {
+    max-width: 50%;
+  }
+}
+
+.panel__input:focus {
+  outline: none;
+}
+
+.panel__input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: #000;
+  border: transparent;
+  border-radius: 25px;
+  cursor: pointer;
+  height: 45px;
+  margin-top: -16px;
+  width: 45px;
+}
+
+.panel__input::-webkit-slider-runnable-track {
+  border-radius: 15px;
+  cursor: pointer;
+  height: 15px;
+  margin: 5px 0;
+  width: 100%;
+}
+
+.panel__label {
+  display: block;
+  font-size: 1rem;
+}
+
+.board {
+  border: solid 1px #000;
+  display: block;
+  height: calc(100vh - var(--panel-height) - var(--game-padding));
+  margin: 0 auto;
+  width: calc(100vw - 2 * var(--game-padding));
+}

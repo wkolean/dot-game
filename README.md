@@ -10,3 +10,16 @@ I'm pretty happy with the results, but didn't receive any feedback on my solutio
 ## Requirements
 * [Node](https://nodejs.org) >= 8
 
+## Installation
+Clone the repo and run `npm install` to install the dependencies.
+
+## Usage
+To run locally
+
+```sh
+npm start
+```
+
+To build for production
+```sh
+npm run build
