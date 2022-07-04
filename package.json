@@ -4,7 +4,8 @@
 	"description": "Receive points by clicking on dots.",
 	"main": "server.js",
 	"scripts": {
-		"start": "node server.js"
+		"start": "node server.js",
+		"build": "cp -R src/ docs/"
 	},
 	"dependencies": {
 		"express": "^4.15.0"
