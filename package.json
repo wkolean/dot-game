@@ -1,7 +1,7 @@
 {
-	"name": "sass",
+	"name": "dot-game",
 	"version": "0.1.0",
-	"description": "Example project showing how to use Sass middleware",
+	"description": "Receive points by clicking on dots.",
 	"main": "server.js",
 	"scripts": {
 		"start": "node server.js"
@@ -9,13 +9,9 @@
 	"dependencies": {
 		"express": "^4.15.0"
 	},
-	"keywords": [
-		"node",
-		"express",
-		"sass"
-	],
 	"license": "MIT",
 	"devDependencies": {
+		"eslint": "^8.19.0",
 		"eslint-config-google": "^0.9.1",
 		"sass-lint": "^1.12.1"
 	}
