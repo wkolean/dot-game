@@ -7,3 +7,6 @@ The game was supposed to take a few hours to build, and I suspect they expected 
 
 I'm pretty happy with the results, but didn't receive any feedback on my solution, which they said means it passed.
 
+## Requirements
+* [Node](https://nodejs.org) >= 8
+
